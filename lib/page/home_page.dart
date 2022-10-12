@@ -17,22 +17,31 @@ class homePage extends StatefulWidget {
 }
 
 class _homePageState extends State<homePage> {
-  TextEditingController _controllerCampo = TextEditingController();
-
-  List _listaTarefas = ['Ir ao mercado', 'Estudar'];
+  List _listaTarefas = [];
+  TextEditingController _controllerTarefa = TextEditingController();
 
   Future<File?> _getFile() async {
     final diretorio = await getApplicationDocumentsDirectory();
     var arquivo = File('${diretorio.path}/dados.json');
   }
 
-  _salvarArquivo() async {
-    var arquivo = await _getFile();
+  _salvarTarefa() {
+    String textoDigitado = _controllerTarefa.text;
 
     Map<String, dynamic> tarefa = Map();
-    tarefa["titulo"] = "Ir ao mercado";
+    tarefa["titulo"] = textoDigitado;
     tarefa["realizada"] = false;
-    _listaTarefas.add(tarefa);
+    setState(() {
+      _listaTarefas.add(tarefa);
+    });
+
+    _salvarArquivo();
+
+    _controllerTarefa.text = "";
+  }
+
+  _salvarArquivo() async {
+    var arquivo = await _getFile();
 
     String dados = json.encode(_listaTarefas);
     arquivo?.writeAsString(dados);
@@ -50,40 +59,53 @@ class _homePageState extends State<homePage> {
   @override
   void initState() {
     super.initState();
-    _lerArquivo();
+    _lerArquivo().then((dados) {
+      setState(() {
+        _listaTarefas = json.decode(dados);
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        shadowColor: Theme.of(context).iconTheme.color,
         iconTheme: Theme.of(context).iconTheme,
-        backgroundColor: Colors.transparent,
-        title: Text('Lista de tarefas'),
-        elevation: 0,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: Text(
+          widget.title,
+          style: TextStyle(color: Theme.of(context).iconTheme.color),
+        ),
+        elevation: 4,
         actions: [
           ChangeThemeButtonWidget(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).iconTheme.color,
-          child: Icon(Icons.add),
+          backgroundColor: Colors.purple,
+          child: Icon(Icons.add_outlined),
           onPressed: () {
             showDialog(
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: Text('Adiconar Tarefa'),
+                    title: Text(
+                      'Adiconar Tarefa',
+                      style:
+                          TextStyle(color: Theme.of(context).iconTheme.color),
+                    ),
                     content: TextField(
                       decoration: InputDecoration(
                         labelText: 'Digite sua tarefa',
                       ),
                       onChanged: (text) {},
-                      controller: _controllerCampo,
+                      controller: _controllerTarefa,
                     ),
                     actions: <Widget>[
                       TextButton(
                         onPressed: () {
+                          _salvarTarefa();
                           Navigator.pop(context);
                         },
                         child: Text(
@@ -94,7 +116,7 @@ class _homePageState extends State<homePage> {
                         ),
                         style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll<Color?>(
-                                Theme.of(context).iconTheme.color)),
+                                Colors.purple)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -108,7 +130,7 @@ class _homePageState extends State<homePage> {
                         ),
                         style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll<Color?>(
-                                Theme.of(context).iconTheme.color)),
+                                Colors.purple)),
                       ),
                     ],
                   );
@@ -120,9 +142,19 @@ class _homePageState extends State<homePage> {
               child: ListView.builder(
                   itemCount: _listaTarefas.length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(_listaTarefas[index]),
+                    return CheckboxListTile(
+                      title: Text(_listaTarefas[index]['titulo']),
+                      value: _listaTarefas[index]['realizada'],
+                      onChanged: (valorAlterado) {
+                        setState(() {
+                          _listaTarefas[index]['realizada'] = valorAlterado;
+                        });
+                        _salvarArquivo();
+                      },
                     );
+                    /*return ListTile(
+                      title: Text(_listaTarefas[index]),
+                    );*/
                   }))
         ],
       ),

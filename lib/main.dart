@@ -21,7 +21,6 @@ class MyApp extends StatelessWidget {
         builder: (context, _) {
           final themeProvider = Provider.of<ThemeProvider>(context);
           return MaterialApp(
-            title: 'Lista de tarefas',
             themeMode: themeProvider.themeMode,
             theme: Mythemes.lightTheme,
             darkTheme: Mythemes.darkTheme,

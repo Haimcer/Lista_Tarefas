@@ -13,14 +13,16 @@ class ThemeProvider extends ChangeNotifier {
 
 class Mythemes {
   static final darkTheme = ThemeData(
-      scaffoldBackgroundColor: Colors.grey.shade900,
-      primaryColor: Colors.black,
-      colorScheme: ColorScheme.dark(),
-      iconTheme: IconThemeData(color: Colors.purple.shade200, opacity: 0.9));
+    scaffoldBackgroundColor: Colors.grey.shade900,
+    primaryColor: Colors.black,
+    colorScheme: ColorScheme.dark(),
+    iconTheme: IconThemeData(color: Colors.white),
+  );
 
   static final lightTheme = ThemeData(
-      scaffoldBackgroundColor: Colors.amber.shade100,
-      primaryColor: Colors.amber,
-      colorScheme: ColorScheme.light(),
-      iconTheme: IconThemeData(color: Colors.amber.shade200, opacity: 0.9));
+    scaffoldBackgroundColor: Colors.white,
+    primaryColor: Colors.white,
+    colorScheme: ColorScheme.light(),
+    iconTheme: IconThemeData(color: Colors.purple),
+  );
 }

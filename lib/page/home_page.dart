@@ -20,9 +20,10 @@ class _homePageState extends State<homePage> {
   List _listaTarefas = [];
   TextEditingController _controllerTarefa = TextEditingController();
 
-  Future<File?> _getFile() async {
+  Future<File> _getFile() async {
     final diretorio = await getApplicationDocumentsDirectory();
-    var arquivo = File('${diretorio.path}/dados.json');
+
+    return File('${diretorio.path}/dados.json');
   }
 
   _salvarTarefa() {
@@ -44,13 +45,13 @@ class _homePageState extends State<homePage> {
     var arquivo = await _getFile();
 
     String dados = json.encode(_listaTarefas);
-    arquivo?.writeAsString(dados);
+    arquivo.writeAsString(dados);
   }
 
   _lerArquivo() async {
     try {
       final arquivo = await _getFile();
-      arquivo?.readAsString();
+      return arquivo.readAsString();
     } catch (e) {
       return null;
     }
@@ -72,18 +73,21 @@ class _homePageState extends State<homePage> {
       appBar: AppBar(
         shadowColor: Theme.of(context).iconTheme.color,
         iconTheme: Theme.of(context).iconTheme,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         title: Text(
           widget.title,
-          style: TextStyle(color: Theme.of(context).iconTheme.color),
+          style: TextStyle(
+              color: Theme.of(context).appBarTheme.titleTextStyle?.color),
         ),
         elevation: 4,
         actions: [
           ChangeThemeButtonWidget(),
         ],
       ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.purple,
+          foregroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Theme.of(context).iconTheme.color,
           child: Icon(Icons.add_outlined),
           onPressed: () {
             showDialog(
@@ -97,8 +101,9 @@ class _homePageState extends State<homePage> {
                     ),
                     content: TextField(
                       decoration: InputDecoration(
-                        labelText: 'Digite sua tarefa',
-                      ),
+                          labelText: 'Digite sua tarefa',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).iconTheme.color)),
                       onChanged: (text) {},
                       controller: _controllerTarefa,
                     ),
@@ -110,13 +115,12 @@ class _homePageState extends State<homePage> {
                         },
                         child: Text(
                           "Salvar",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                          style:
+                              TextStyle(color: Theme.of(context).primaryColor),
                         ),
                         style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll<Color?>(
-                                Colors.purple)),
+                                Theme.of(context).iconTheme.color)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -125,12 +129,12 @@ class _homePageState extends State<homePage> {
                         child: Text(
                           "Cancelar",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).primaryColor,
                           ),
                         ),
                         style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll<Color?>(
-                                Colors.purple)),
+                                Theme.of(context).iconTheme.color)),
                       ),
                     ],
                   );
@@ -143,7 +147,13 @@ class _homePageState extends State<homePage> {
                   itemCount: _listaTarefas.length,
                   itemBuilder: (context, index) {
                     return CheckboxListTile(
-                      title: Text(_listaTarefas[index]['titulo']),
+                      activeColor: Theme.of(context).iconTheme.color,
+                      title: Text(
+                        _listaTarefas[index]['titulo'] ?? 0,
+                        style: TextStyle(
+                          color: Theme.of(context).iconTheme.color,
+                        ),
+                      ),
                       value: _listaTarefas[index]['realizada'],
                       onChanged: (valorAlterado) {
                         setState(() {

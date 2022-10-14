@@ -18,6 +18,7 @@ class homePage extends StatefulWidget {
 
 class _homePageState extends State<homePage> {
   List _listaTarefas = [];
+  Map<String, dynamic> _ultimoTarefaRemovido = Map();
   TextEditingController _controllerTarefa = TextEditingController();
 
   Future<File> _getFile() async {
@@ -65,6 +66,60 @@ class _homePageState extends State<homePage> {
         _listaTarefas = json.decode(dados);
       });
     });
+  }
+
+  Widget criarItemLista(context, index) {
+    //final item = _listaTarefas[index]['titulo'] ?? 0;
+    return Dismissible(
+      key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        _ultimoTarefaRemovido = _listaTarefas[index];
+        _listaTarefas.removeAt(index);
+        _salvarArquivo();
+
+        final snackBar = SnackBar(
+          duration: Duration(seconds: 5),
+          content: Text("Tarefa removida"),
+          action: SnackBarAction(
+              label: 'Desfazer',
+              onPressed: () {
+                setState(() {
+                  _listaTarefas.insert(index, _ultimoTarefaRemovido);
+                });
+                _salvarArquivo();
+              }),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      },
+      background: Container(
+        color: Colors.red,
+        padding: EdgeInsets.all(16),
+        child: Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+          Icon(
+            Icons.delete,
+            color: Colors.white,
+          )
+        ]),
+      ),
+      child: CheckboxListTile(
+        activeColor: Theme.of(context).iconTheme.color,
+        title: Text(
+          _listaTarefas[index]['titulo'] ?? 0,
+          style: TextStyle(
+            color: Theme.of(context).iconTheme.color,
+          ),
+        ),
+        value: _listaTarefas[index]['realizada'],
+        onChanged: (valorAlterado) {
+          setState(() {
+            _listaTarefas[index]['realizada'] = valorAlterado;
+          });
+          _salvarArquivo();
+        },
+      ),
+    );
   }
 
   @override
@@ -144,28 +199,9 @@ class _homePageState extends State<homePage> {
         children: <Widget>[
           Expanded(
               child: ListView.builder(
-                  itemCount: _listaTarefas.length,
-                  itemBuilder: (context, index) {
-                    return CheckboxListTile(
-                      activeColor: Theme.of(context).iconTheme.color,
-                      title: Text(
-                        _listaTarefas[index]['titulo'] ?? 0,
-                        style: TextStyle(
-                          color: Theme.of(context).iconTheme.color,
-                        ),
-                      ),
-                      value: _listaTarefas[index]['realizada'],
-                      onChanged: (valorAlterado) {
-                        setState(() {
-                          _listaTarefas[index]['realizada'] = valorAlterado;
-                        });
-                        _salvarArquivo();
-                      },
-                    );
-                    /*return ListTile(
-                      title: Text(_listaTarefas[index]),
-                    );*/
-                  }))
+            itemCount: _listaTarefas.length,
+            itemBuilder: criarItemLista,
+          ))
         ],
       ),
     );

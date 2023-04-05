@@ -1,40 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lista_tarefas/widget/change_theme_button.dart';
-import 'dart:convert';
 import 'package:lista_tarefas/page/controllers/controllers.dart';
 import 'components/create_item_tile.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
+class HomePage extends StatelessWidget {
+  HomePage({super.key, required this.title});
 
   final String title;
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   final getController = Get.put(Controller());
-  @override
-  void initState() {
-    super.initState();
-    getController.lerArquivo().then((dados) {
-      getController.listaTarefas = json.decode(dados);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         shadowColor: Theme.of(context).iconTheme.color,
         iconTheme: Theme.of(context).iconTheme,
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         title: Text(
-          widget.title,
+          title,
           style: TextStyle(
-              color: Theme.of(context).appBarTheme.titleTextStyle?.color),
+            color: Theme.of(context).appBarTheme.titleTextStyle?.color,
+            fontSize: 35,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         elevation: 4,
         actions: const [
@@ -102,7 +93,11 @@ class _HomePageState extends State<HomePage> {
           GetBuilder<Controller>(
             builder: (controller) {
               return Expanded(
-                  child: ListView.builder(
+                  child: ListView.separated(
+                separatorBuilder: (context, index) => Divider(
+                  height: 1,
+                  color: Colors.purple.withAlpha(100),
+                ),
                 itemCount: controller.listaTarefas.length,
                 itemBuilder: criarItemLista,
               ));

@@ -8,6 +8,15 @@ class Controller extends GetxController {
   List listaTarefas = [].obs;
   Map<String, dynamic> ultimoTarefaRemovido = {};
 
+  @override
+  void onInit() {
+    super.onInit();
+    lerArquivo().then((dados) {
+      listaTarefas = json.decode(dados);
+      update();
+    });
+  }
+
   Future<File> getFile() async {
     final diretorio = await getApplicationDocumentsDirectory();
 

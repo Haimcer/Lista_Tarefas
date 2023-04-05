@@ -40,6 +40,7 @@ Widget criarItemLista(context, index) {
             ]),
       ),
       child: CheckboxListTile(
+        side: const BorderSide(color: Colors.purple),
         activeColor: Theme.of(context).iconTheme.color,
         title: Text(
           getController.listaTarefas[index]['titulo'] ?? 0,
